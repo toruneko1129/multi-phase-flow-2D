@@ -18,6 +18,8 @@ real(8) :: uwall, ls
 real(8), dimension(:,:), allocatable :: u, v, un, vn
 real(8), dimension(:,:), allocatable :: rho, mu
 
+integer :: i, j
+
 !>mpi init=====================================================================
 
 call mpi_init(ierr)
@@ -29,7 +31,7 @@ call mpi_comm_rank(mpi_comm_world, ID, ierr)
 
 !ni, nj: number of grid points over the entire region(ni,nj)
 ni    = 32
-nj    = 8
+nj    = 32
 
 if (mod(ni, nproc).ne. 0 .or. mod(nj, nproc) .ne. 0) then
   if (ID .eq. 0) then
@@ -43,7 +45,7 @@ endif
 
 !nmax: num of max steps
 !dt: time step
-nmax  = 1
+nmax  = 120000
 dt    = 0.1d-2
 
 !xl, yl: lengthes in x, y and z directions to describe domain size
@@ -93,6 +95,10 @@ call flush(6)
 
 do nstep = 1, nmax
 
+call solve_couette_flow(ni, nj, u, un, rho, mu, dx, dy, dt)
+call cpy(ni, nj, un, u)
+call bnd_velocity(ni, nj, u, v, dy, uwall, ls)
+
 !>end solver===================================================================
 
 !enddo nstep
@@ -100,11 +106,9 @@ enddo
 
 !>debug
 write(*, *)
-write(*,'("dy       =",20e20.10)') dy
-write(*,'("uwall    =",20e20.10)') uwall
-write(*,'("ls       =",20e20.10)') ls
-write(*,'("u(0)     =",20e20.10)') u(0,0)
-write(*,'("u(nj+1)  =",20e20.10)') u(0,nj+1)
+do j = 1, nj
+  write(*,'("u(j)     =",20e20.10)') u(0,j)
+enddo
 
 !>mpi finished=================================================================
 
