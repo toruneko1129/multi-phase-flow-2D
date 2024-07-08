@@ -2,8 +2,6 @@
 !fill 2D array values ​​with 0
 subroutine init_2d(ni, nj, arr2d, value)
   implicit none
-
-
   integer :: ni, nj
   real(8) :: arr2d(0:ni+1, 0:nj+1)
   real(8) :: value

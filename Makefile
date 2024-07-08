@@ -2,7 +2,8 @@ NAME	=	a.out
 FFLAGS	=	-Kfast,parallel,openmp
 FC		=	mpifrtpx
 SRCDIR	=	./srcs
-F90SRCS =   init_2d.f90 \
+F90SRCS =   bnd_velocity.f90 \
+            init_2d.f90 \
             init.f90 \
             main.f90 \
             output_parameters.f90

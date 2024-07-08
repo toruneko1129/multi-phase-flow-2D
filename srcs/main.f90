@@ -8,12 +8,14 @@ include 'mpif.h'
 !ID   : process id
 integer :: ierr, nproc, ID
 
-integer :: ni, nj, nmax
+integer :: ni, nj
+integer :: nmax, nstep
 real(8) :: xl, yl
 real(8) :: dx, dy, dt
 real(8) :: rhol, rhog, mul, mug, sigma
+real(8) :: uwall, ls
 
-real(8), dimension(:,:), allocatable :: u, un
+real(8), dimension(:,:), allocatable :: u, v, un, vn
 real(8), dimension(:,:), allocatable :: rho, mu
 
 !>mpi init=====================================================================
@@ -55,26 +57,54 @@ mul   = 1.95d0
 mug   = 1.95d0
 sigma = 5.5d0
 
-call output_parameters(nproc, ni, nj, nmax, dt, xl, yl, rhol, rhog, &
-                       mul, mug, sigma)
+!uwall: velocity of the upper(lower) wall
+!ls: slip length of the wall
+uwall = 0.5d0
+ls    = 1.625d0
+
+if (ID .eq. 0) then
+  call output_parameters(nproc, ni, nj, nmax, dt, xl, yl, rhol, rhog, &
+                         mul, mug, sigma, uwall, ls)
+endif
+call mpi_barrier(mpi_comm_world, ierr)
+call flush(6)
+
 
 !>initialize parameters========================================================
 
 !allocate memory for each variable
 include 'allocate.h'
 
-call init(ni, nj, u, un, rho, mu, rhol, mul)
+call init(ni, nj, u, v, un, vn, rho, mu, rhol, mul)
+call mpi_barrier(mpi_comm_world, ierr)
+call flush(6)
 
-!dx, dy, dz: grid widths
+!dx, dy: grid widths
 dx = xl / dble(ni)
 dy = yl / dble(nj)
 
+!>impose boundary conditions===================================================
+
+call bnd_velocity(ni, nj, u, v, dy, uwall, ls)
+call mpi_barrier(mpi_comm_world, ierr)
+call flush(6)
+
+!start solver==================================================================
+
+do nstep = 1, nmax
+
+!>end solver===================================================================
+
+!enddo nstep
+enddo
+
 !>debug
 write(*, *)
-write(*,'("rho  =",20e20.10)') rho(0,0)
-write(*,'("mu   =",20e20.10)') mu(0,0)
-write(*,'("dx   =",20e20.10)') dx
-write(*,'("dy   =",20e20.10)') dy
+write(*,'("dy       =",20e20.10)') dy
+write(*,'("uwall    =",20e20.10)') uwall
+write(*,'("ls       =",20e20.10)') ls
+write(*,'("u(0)     =",20e20.10)') u(0,0)
+write(*,'("u(nj+1)  =",20e20.10)') u(0,nj+1)
 
 !>mpi finished=================================================================
 
