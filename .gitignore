@@ -1,0 +1,9 @@
+#objectfile
+objs/*
+
+#binary file
+a.out
+
+#result file
+results/*
+!results/

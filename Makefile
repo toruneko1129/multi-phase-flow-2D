@@ -1,0 +1,34 @@
+NAME	=	a.out
+FFLAGS	=	-Kfast,parallel,openmp
+FC		=	mpifrtpx
+SRCDIR	=	./srcs
+F90SRCS =   main.f90
+FCSRCS	= 
+SRCS	=	$(addprefix $(SRCDIR)/, $(F90SRCS)) \
+			$(addprefix $(SRCDIR)/, $(FCSRCS))
+OBJDIR	=	./objs
+OBJS	=	$(F90SRCS:%.f90=$(OBJDIR)/%.o) \
+			$(FCSRCS:%.f=$(OBJDIR)/%.o)
+
+$(OBJDIR)/%.o: $(SRCDIR)/%.f90
+		mkdir -p $(OBJDIR)
+		$(FC) -c $(FFLAGS) $< -o $@
+
+$(OBJDIR)/%.o: $(SRCDIR)/%.f
+		mkdir -p $(OBJDIR)
+		$(FC) -c $(FFLAGS) $< -o $@
+
+$(NAME): $(OBJS)
+	$(FC) $(OBJS) $(FFLAGS) -o $(NAME)
+
+all: $(NAME)
+
+clean:
+	rm -rf $(OBJDIR)
+
+fclean: clean
+	rm -rf $(NAME)
+
+re: fclean all
+
+.SUFFIXES: .o .f .f90
