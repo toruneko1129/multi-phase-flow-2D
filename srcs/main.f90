@@ -31,7 +31,7 @@ call mpi_comm_rank(mpi_comm_world, ID, ierr)
 
 !ni, nj: number of grid points over the entire region(ni,nj)
 ni    = 32
-nj    = 32
+nj    = 8
 
 if (mod(ni, nproc).ne. 0 .or. mod(nj, nproc) .ne. 0) then
   if (ID .eq. 0) then
@@ -102,12 +102,6 @@ call bnd_velocity(ni, nj, u, v, dy, uwall, ls)
 !>end solver===================================================================
 
 !enddo nstep
-enddo
-
-!>debug
-write(*, *)
-do j = 1, nj
-  write(*,'("u(j)     =",20e20.10)') u(0,j)
 enddo
 
 !>mpi finished=================================================================
