@@ -9,10 +9,12 @@ include 'mpif.h'
 integer :: ierr, nproc, ID
 
 integer :: ni, nj, nmax
-real(8) :: dt
 real(8) :: xl, yl
+real(8) :: dx, dy, dt
 real(8) :: rhol, rhog, mul, mug, sigma
 
+real(8), dimension(:,:), allocatable :: u, un
+real(8), dimension(:,:), allocatable :: rho, mu
 
 !>mpi init=====================================================================
 
@@ -40,7 +42,7 @@ endif
 !nmax: num of max steps
 !dt: time step
 nmax  = 1
-dt    = 1.0d-2
+dt    = 0.1d-2
 
 !xl, yl: lengthes in x, y and z directions to describe domain size
 !rho, mu: density, viscosity
@@ -55,6 +57,24 @@ sigma = 5.5d0
 
 call output_parameters(nproc, ni, nj, nmax, dt, xl, yl, rhol, rhog, &
                        mul, mug, sigma)
+
+!>initialize parameters========================================================
+
+!allocate memory for each variable
+include 'allocate.h'
+
+call init(ni, nj, u, un, rho, mu, rhol, mul)
+
+!dx, dy, dz: grid widths
+dx = xl / dble(ni)
+dy = yl / dble(nj)
+
+!>debug
+write(*, *)
+write(*,'("rho  =",20e20.10)') rho(0,0)
+write(*,'("mu   =",20e20.10)') mu(0,0)
+write(*,'("dx   =",20e20.10)') dx
+write(*,'("dy   =",20e20.10)') dy
 
 !>mpi finished=================================================================
 

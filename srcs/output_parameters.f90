@@ -2,6 +2,8 @@
 subroutine output_parameters(nproc, ni, nj, nmax, dt, xl, yl, rhol, rhog, &
                              mul, mug, sigma)
   implicit none
+
+
   integer :: nproc, ni, nj, nk, nmax
   real(8) :: dt, xl, yl, zl, rhol, rhog, mul, mug, sigma
 
