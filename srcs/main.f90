@@ -8,11 +8,15 @@ include 'mpif.h'
 !ID   : process id
 integer :: ierr, nproc, ID
 
-integer :: ni, nj, nmax
-real(8) :: dt
+integer :: ni, nj
+integer :: nmax, nstep
 real(8) :: xl, yl
+real(8) :: dx, dy, dt
 real(8) :: rhol, rhog, mul, mug, sigma
+real(8) :: uwall, ls
 
+real(8), dimension(:,:), allocatable :: u, v, un, vn
+real(8), dimension(:,:), allocatable :: rho, mu
 
 !>mpi init=====================================================================
 
@@ -40,7 +44,7 @@ endif
 !nmax: num of max steps
 !dt: time step
 nmax  = 1
-dt    = 1.0d-2
+dt    = 0.1d-2
 
 !xl, yl: lengthes in x, y and z directions to describe domain size
 !rho, mu: density, viscosity
@@ -53,8 +57,54 @@ mul   = 1.95d0
 mug   = 1.95d0
 sigma = 5.5d0
 
-call output_parameters(nproc, ni, nj, nmax, dt, xl, yl, rhol, rhog, &
-                       mul, mug, sigma)
+!uwall: velocity of the upper(lower) wall
+!ls: slip length of the wall
+uwall = 0.5d0
+ls    = 1.625d0
+
+if (ID .eq. 0) then
+  call output_parameters(nproc, ni, nj, nmax, dt, xl, yl, rhol, rhog, &
+                         mul, mug, sigma, uwall, ls)
+endif
+call mpi_barrier(mpi_comm_world, ierr)
+call flush(6)
+
+
+!>initialize parameters========================================================
+
+!allocate memory for each variable
+include 'allocate.h'
+
+call init(ni, nj, u, v, un, vn, rho, mu, rhol, mul)
+call mpi_barrier(mpi_comm_world, ierr)
+call flush(6)
+
+!dx, dy: grid widths
+dx = xl / dble(ni)
+dy = yl / dble(nj)
+
+!>impose boundary conditions===================================================
+
+call bnd_velocity(ni, nj, u, v, dy, uwall, ls)
+call mpi_barrier(mpi_comm_world, ierr)
+call flush(6)
+
+!start solver==================================================================
+
+do nstep = 1, nmax
+
+!>end solver===================================================================
+
+!enddo nstep
+enddo
+
+!>debug
+write(*, *)
+write(*,'("dy       =",20e20.10)') dy
+write(*,'("uwall    =",20e20.10)') uwall
+write(*,'("ls       =",20e20.10)') ls
+write(*,'("u(0)     =",20e20.10)') u(0,0)
+write(*,'("u(nj+1)  =",20e20.10)') u(0,nj+1)
 
 !>mpi finished=================================================================
 
