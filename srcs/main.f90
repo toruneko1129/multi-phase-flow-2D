@@ -11,12 +11,13 @@ integer :: ierr, nproc, ID
 integer :: ni, nj
 integer :: nmax, nstep
 real(8) :: xl, yl
-real(8) :: dx, dy, dt
+real(8) :: dx, dy, dxinv, dyinv, dt
 real(8) :: rhol, rhog, mul, mug, sigma
 real(8) :: uwall, ls
 
-real(8), dimension(:,:), allocatable :: u, v, un, vn
-real(8), dimension(:,:), allocatable :: rho, mu
+real(8), dimension(:, :), allocatable :: u, v, un, vn
+real(8), dimension(:, :), allocatable :: rho, mu
+real(8), dimension(:, :, :), allocatable :: s
 
 integer :: i, j
 
@@ -45,7 +46,7 @@ endif
 
 !nmax: num of max steps
 !dt: time step
-nmax  = 120000
+nmax  = 100
 dt    = 0.1d-2
 
 !xl, yl: lengthes in x, y and z directions to describe domain size
@@ -84,6 +85,8 @@ call flush(6)
 !dx, dy: grid widths
 dx = xl / dble(ni)
 dy = yl / dble(nj)
+dxinv = 1.0d0 / dx
+dyinv = 1.0d0 / dy
 
 !>impose boundary conditions===================================================
 
@@ -96,6 +99,16 @@ call flush(6)
 do nstep = 1, nmax
 
 call solve_couette_flow(ni, nj, u, un, rho, mu, dx, dy, dt)
+
+!implement instead of solve_couette_flow
+call calc_sij(ni, nj, dxinv, dyinv, u, v, s)
+
+!>debug
+write(*, *)
+write(*, '("s11   =",20e20.10)') s(16, 8, 1)
+write(*, '("s22   =",20e20.10)') s(16, 8, 2)
+write(*, '("s12   =",20e20.10)') s(16, 8, 3)
+
 call cpy(ni, nj, un, u)
 call bnd_velocity(ni, nj, u, v, dy, uwall, ls)
 
