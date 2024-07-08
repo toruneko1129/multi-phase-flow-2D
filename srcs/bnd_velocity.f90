@@ -12,6 +12,7 @@ subroutine bnd_velocity(ni, nj, u, v, dy, uwall, ls)
 
 
 !>x direction: periodic========================================================
+
   !$OMP PARALLEL DO &
   !$OMP SCHEDULE(static, 1) &
   !$OMP DEFAULT(none) &

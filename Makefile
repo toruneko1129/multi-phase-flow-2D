@@ -3,10 +3,12 @@ FFLAGS	=	-Kfast,parallel,openmp
 FC		=	mpifrtpx
 SRCDIR	=	./srcs
 F90SRCS =   bnd_velocity.f90 \
+            cpy.f90 \
             init_2d.f90 \
             init.f90 \
             main.f90 \
-            output_parameters.f90
+            output_parameters.f90 \
+            solve_couette_flow.f90
 FCSRCS	= 
 SRCS	=	$(addprefix $(SRCDIR)/, $(F90SRCS)) \
 			$(addprefix $(SRCDIR)/, $(FCSRCS))
