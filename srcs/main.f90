@@ -8,17 +8,18 @@ include 'mpif.h'
 !ID   : process id
 integer :: ierr, nproc, ID
 
-integer :: ni, nj
+integer :: ni, nj, nk
 integer :: nmax, nstep
-real(8) :: xl, yl
-real(8) :: dx, dy, dt
+real(8) :: xl, yl, zl
+real(8) :: dx, dy, dz, dxinv, dyinv, dzinv, dt
 real(8) :: rhol, rhog, mul, mug, sigma
 real(8) :: uwall, ls
 
-real(8), dimension(:,:), allocatable :: u, v, un, vn
-real(8), dimension(:,:), allocatable :: rho, mu
+real(8), dimension(:, :, :), allocatable :: u, v, w, un, vn, wn
+real(8), dimension(:, :, :), allocatable :: rho, mu
+real(8), dimension(:, :, :, :), allocatable :: s
 
-integer :: i, j
+integer :: i, j, k
 
 !>mpi init=====================================================================
 
@@ -32,6 +33,7 @@ call mpi_comm_rank(mpi_comm_world, ID, ierr)
 !ni, nj: number of grid points over the entire region(ni,nj)
 ni    = 32
 nj    = 8
+nk    = 2
 
 if (mod(ni, nproc).ne. 0 .or. mod(nj, nproc) .ne. 0) then
   if (ID .eq. 0) then
@@ -45,7 +47,7 @@ endif
 
 !nmax: num of max steps
 !dt: time step
-nmax  = 120000
+nmax  = 150000
 dt    = 0.1d-2
 
 !xl, yl: lengthes in x, y and z directions to describe domain size
@@ -53,6 +55,7 @@ dt    = 0.1d-2
 !sigma: surface tension
 xl    = 6.8d1
 yl    = 1.36d1
+zl    = 1.7d0
 rhol  = 0.81d0
 rhog  = 0.81d0
 mul   = 1.95d0
@@ -65,8 +68,8 @@ uwall = 0.5d0
 ls    = 1.625d0
 
 if (ID .eq. 0) then
-  call output_parameters(nproc, ni, nj, nmax, dt, xl, yl, rhol, rhog, &
-                         mul, mug, sigma, uwall, ls)
+  call output_parameters(nproc, ni, nj, nk, nmax, dt, xl, yl, zl, &
+                         rhol, rhog, mul, mug, sigma, uwall, ls)
 endif
 call mpi_barrier(mpi_comm_world, ierr)
 call flush(6)
@@ -77,17 +80,21 @@ call flush(6)
 !allocate memory for each variable
 include 'allocate.h'
 
-call init(ni, nj, u, v, un, vn, rho, mu, rhol, mul)
+call init(ni, nj, nk, u, v, w, un, vn, wn, rho, mu, rhol, mul, s)
 call mpi_barrier(mpi_comm_world, ierr)
 call flush(6)
 
 !dx, dy: grid widths
 dx = xl / dble(ni)
 dy = yl / dble(nj)
+dz = zl / dble(nk)
+dxinv = 1.0d0 / dx
+dyinv = 1.0d0 / dy
+dzinv = 1.0d0 / dz
 
 !>impose boundary conditions===================================================
 
-call bnd_velocity(ni, nj, u, v, dy, uwall, ls)
+call bnd_velocity(ni, nj, nk, u, v, w, dy, uwall, ls)
 call mpi_barrier(mpi_comm_world, ierr)
 call flush(6)
 
@@ -95,13 +102,21 @@ call flush(6)
 
 do nstep = 1, nmax
 
-call solve_couette_flow(ni, nj, u, un, rho, mu, dx, dy, dt)
-call cpy(ni, nj, un, u)
-call bnd_velocity(ni, nj, u, v, dy, uwall, ls)
+call solve_couette_flow(ni, nj, nk, u, un, rho, mu, dx, dy, dt)
+
+!implement instead of solve_couette_flow
+!call calc_sij(ni, nj, dxinv, dyinv, u, v, s)
+
+call cpy(ni, nj, nk, un, u)
+call bnd_velocity(ni, nj, nk, u, v, w, dy, uwall, ls)
 
 !>end solver===================================================================
 
 !enddo nstep
+enddo
+
+do j = 1, nj
+write(*,'("u= ",1E20.10)') u(ni, j, 1)
 enddo
 
 !>mpi finished=================================================================
