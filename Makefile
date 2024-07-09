@@ -8,7 +8,8 @@ F90SRCS =   bnd_velocity.f90 \
             main.f90 \
             output_parameters.f90 \
             solve_couette_flow.f90
-FCSRCS	=   calc_sij.f \
+FCSRCS	=   calc_arith_tau.f \
+            calc_sij.f \
             cpy.f
 SRCS	=	$(addprefix $(SRCDIR)/, $(F90SRCS)) \
 			$(addprefix $(SRCDIR)/, $(FCSRCS))

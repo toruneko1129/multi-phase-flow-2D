@@ -17,7 +17,7 @@ real(8) :: uwall, ls
 
 real(8), dimension(:, :, :), allocatable :: u, v, w, un, vn, wn
 real(8), dimension(:, :, :), allocatable :: rho, mu
-real(8), dimension(:, :, :, :), allocatable :: s
+real(8), dimension(:, :, :, :), allocatable :: s, tau
 
 integer :: i, j, k
 
@@ -106,6 +106,7 @@ call solve_couette_flow(ni, nj, nk, u, un, rho, mu, dx, dy, dt)
 
 !implement instead of solve_couette_flow
 call calc_sij(ni, nj, nk, dxinv, dyinv, dzinv, u, v, w, s)
+call calc_arith_tau(ni, nj, nk, s, mu, tau)
 call cpy(ni, nj, nk, un, u)
 call bnd_velocity(ni, nj, nk, u, v, w, dy, uwall, ls)
 
@@ -115,12 +116,9 @@ call bnd_velocity(ni, nj, nk, u, v, w, dy, uwall, ls)
 enddo
 
 !>debug
-write(*,'("sij= ",1E20.10)') s(ni, nj, 1, 1)
-write(*,'("sij= ",1E20.10)') s(ni, nj, 1, 2)
-write(*,'("sij= ",1E20.10)') s(ni, nj, 1, 3)
-write(*,'("sij= ",1E20.10)') s(ni, nj, 1, 4)
-write(*,'("sij= ",1E20.10)') s(ni, nj, 1, 5)
-write(*,'("sij= ",1E20.10)') s(ni, nj, 1, 6)
+write(*, *)
+write(*,'("sij4  = ",1E20.10)') s(ni, nj, 1, 4)
+write(*,'("tauij4= ",1E20.10)') tau(ni, nj, 1, 4)
 
 !>mpi finished=================================================================
 
