@@ -8,5 +8,4 @@ allocate( wn(-2:ni+3, -2:nj+3, -2:nk+3))
 allocate(rho(-2:ni+3, -2:nj+3, -2:nk+3))
 allocate( mu(-2:ni+3, -2:nj+3, -2:nk+3))
 
-allocate(  s(-2:ni+3, -2:nj+3, -2:nk+3, 6))
-allocate(tau(-2:ni+3, -2:nj+3, -2:nk+3, 6))
+allocate(  s(-2:ni+3,-2:nj+3,-2:nk+3,6))
