@@ -47,7 +47,7 @@ endif
 
 !nmax: num of max steps
 !dt: time step
-nmax  = 150000
+nmax  = 1
 dt    = 0.1d-2
 
 !xl, yl: lengthes in x, y and z directions to describe domain size
@@ -105,8 +105,7 @@ do nstep = 1, nmax
 call solve_couette_flow(ni, nj, nk, u, un, rho, mu, dx, dy, dt)
 
 !implement instead of solve_couette_flow
-!call calc_sij(ni, nj, dxinv, dyinv, u, v, s)
-
+call calc_sij(ni, nj, nk, dxinv, dyinv, dzinv, u, v, w, s)
 call cpy(ni, nj, nk, un, u)
 call bnd_velocity(ni, nj, nk, u, v, w, dy, uwall, ls)
 
@@ -115,9 +114,13 @@ call bnd_velocity(ni, nj, nk, u, v, w, dy, uwall, ls)
 !enddo nstep
 enddo
 
-do j = 1, nj
-write(*,'("u= ",1E20.10)') u(ni, j, 1)
-enddo
+!>debug
+write(*,'("sij= ",1E20.10)') s(ni, nj, 1, 1)
+write(*,'("sij= ",1E20.10)') s(ni, nj, 1, 2)
+write(*,'("sij= ",1E20.10)') s(ni, nj, 1, 3)
+write(*,'("sij= ",1E20.10)') s(ni, nj, 1, 4)
+write(*,'("sij= ",1E20.10)') s(ni, nj, 1, 5)
+write(*,'("sij= ",1E20.10)') s(ni, nj, 1, 6)
 
 !>mpi finished=================================================================
 
