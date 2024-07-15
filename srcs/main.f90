@@ -18,6 +18,7 @@ real(8) :: uwall, ls
 real(8), dimension(:, :, :), allocatable :: u, v, w, un, vn, wn
 real(8), dimension(:, :, :), allocatable :: rho, mu
 real(8), dimension(:, :, :, :), allocatable :: s, tau
+real(8), dimension(:, :, :), allocatable :: vis_u, vis_v, vis_w
 
 integer :: i, j, k
 
@@ -109,6 +110,7 @@ call calc_sij(ni, nj, nk, dxinv, dyinv, dzinv, u, v, w, s)
 call calc_arith_tau(ni, nj, nk, s, mu, tau)
 call cpy(ni, nj, nk, un, u)
 call bnd_velocity(ni, nj, nk, u, v, w, dy, uwall, ls)
+call calc_div_tensor(ni, nj, nk, dxinv, dyinv, dzinv, tau, vis_u, vis_v, vis_w)
 
 !>end solver===================================================================
 
@@ -119,6 +121,8 @@ enddo
 write(*, *)
 write(*,'("sij4  = ",1E20.10)') s(ni, nj, 1, 4)
 write(*,'("tauij4= ",1E20.10)') tau(ni, nj, 1, 4)
+write(*,'("vis_u= ",1E20.10)') vis_u(16, 8, 1)
+write(*,'("un= ",1E20.10)') un(16, 8, 1)
 
 !>mpi finished=================================================================
 
