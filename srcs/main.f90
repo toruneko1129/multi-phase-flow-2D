@@ -16,9 +16,21 @@ real(8) :: rhol, rhog, mul, mug, sigma
 real(8) :: uwall, ls
 
 real(8), dimension(:, :, :), allocatable :: u, v, w, un, vn, wn
-real(8), dimension(:, :, :), allocatable :: rho, mu
+real(8), dimension(:, :, :), allocatable :: rho, mu, rhon, mun
+
+real(8), dimension(:, :, :), allocatable :: adv_u, adv_v, adv_w
+real(8), dimension(:, :, :), allocatable :: adv_uo, adv_vo, adv_wo
+
+real(8), dimension(:, :, :), allocatable :: prs_u, prs_v, prs_w
+
 real(8), dimension(:, :, :, :), allocatable :: s, tau
 real(8), dimension(:, :, :), allocatable :: vis_u, vis_v, vis_w
+
+real(8), dimension(:, :, :), allocatable :: sum_fst_u, sum_fst_v, sum_fst_w
+real(8), dimension(:, :, :), allocatable :: sum_fst_un, sum_fst_vn, sum_fst_wn
+
+real(8), dimension(:, :, :), allocatable :: src_u, src_v, src_w
+
 
 integer :: i, j, k
 
@@ -81,8 +93,12 @@ call flush(6)
 !allocate memory for each variable
 include 'allocate.h'
 
-call init(ni, nj, nk, u, v, w, un, vn, wn, rho, mu, s, tau, &
-          vis_u, vis_v, vis_w, rhol, mul)
+call init(ni, nj, nk, u, v, w, un, vn, wn, rho, mu, rhon, mun, &
+          adv_u, adv_v, adv_w, adv_uo, adv_vo, adv_wo, &
+          prs_u, prs_v, prs_w, s, tau, vis_u, vis_v, vis_w, &
+          sum_fst_u, sum_fst_v, sum_fst_w, &
+          sum_fst_un, sum_fst_vn, sum_fst_wn, src_u, src_v, src_w, &
+          rhol, mul)
 call mpi_barrier(mpi_comm_world, ierr)
 call flush(6)
 
@@ -109,9 +125,10 @@ call solve_couette_flow(ni, nj, nk, u, un, rho, mu, dx, dy, dt)
 !implement instead of solve_couette_flow
 call calc_sij(ni, nj, nk, dxinv, dyinv, dzinv, u, v, w, s)
 call calc_arith_tau(ni, nj, nk, s, mu, tau)
+call calc_div_tensor(ni, nj, nk, dxinv, dyinv, dzinv, tau, vis_u, vis_v, vis_w)
+
 call cpy(ni, nj, nk, un, u)
 call bnd_velocity(ni, nj, nk, u, v, w, dy, uwall, ls)
-call calc_div_tensor(ni, nj, nk, dxinv, dyinv, dzinv, tau, vis_u, vis_v, vis_w)
 
 !>end solver===================================================================
 
