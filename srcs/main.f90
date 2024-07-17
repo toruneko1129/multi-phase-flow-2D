@@ -81,7 +81,8 @@ call flush(6)
 !allocate memory for each variable
 include 'allocate.h'
 
-call init(ni, nj, nk, u, v, w, un, vn, wn, rho, mu, rhol, mul, s)
+call init(ni, nj, nk, u, v, w, un, vn, wn, rho, mu, s, tau, &
+          vis_u, vis_v, vis_w, rhol, mul)
 call mpi_barrier(mpi_comm_world, ierr)
 call flush(6)
 
