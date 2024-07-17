@@ -122,10 +122,24 @@ do nstep = 1, nmax
 
 call solve_couette_flow(ni, nj, nk, u, un, rho, mu, dx, dy, dt)
 
+!>solve viscous term===========================================================
+
 !implement instead of solve_couette_flow
 call calc_sij(ni, nj, nk, dxinv, dyinv, dzinv, u, v, w, s)
 call calc_arith_tau(ni, nj, nk, s, mu, tau)
 call calc_div_tensor(ni, nj, nk, dxinv, dyinv, dzinv, tau, vis_u, vis_v, vis_w)
+
+!>calculate ustar(src_[uvw])===================================================
+
+call calc_srcu(ni, nj, nk, dt, &
+               u, v, w, rho, rhon, &
+               adv_u     , adv_v     , adv_w     , &
+               adv_uo    , adv_vo    , adv_wo    , &
+               prs_u     , prs_v     , prs_w     , &
+               vis_u     , vis_v     , vis_w     , &
+               sum_fst_u , sum_fst_v , sum_fst_w , &
+               sum_fst_un, sum_fst_vn, sum_fst_wn, &
+               src_u     , src_v     , src_w)
 
 call cpy(ni, nj, nk, un, u)
 call bnd_velocity(ni, nj, nk, u, v, w, dy, uwall, ls)
@@ -140,6 +154,7 @@ write(*, *)
 write(*,'("sij4  = ",1E20.10)') s(ni, nj, 1, 4)
 write(*,'("tauij4= ",1E20.10)') tau(ni, nj, 1, 4)
 write(*,'("vis_u= ",1E20.10)') vis_u(16, 8, 1)
+write(*,'("src_u= ",1E20.10)') src_u(16, 8, 1)
 write(*,'("un= ",1E20.10)') un(16, 8, 1)
 
 !>mpi finished=================================================================

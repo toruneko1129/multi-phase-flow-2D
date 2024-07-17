@@ -12,6 +12,7 @@ F90SRCS =   bnd_velocity.f90 \
 FCSRCS	=   calc_arith_tau.f \
 						calc_div_tensor.f \
             calc_sij.f \
+						calc_srcu.f \
             cpy.f
 SRCS	=	$(addprefix $(SRCDIR)/, $(F90SRCS)) \
 			$(addprefix $(SRCDIR)/, $(FCSRCS))
