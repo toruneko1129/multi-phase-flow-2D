@@ -31,6 +31,19 @@ real(8), dimension(:, :, :), allocatable :: sum_fst_un, sum_fst_vn, sum_fst_wn
 
 real(8), dimension(:, :, :), allocatable :: src_u, src_v, src_w
 
+real(8), dimension(:, :, :), allocatable :: au_w_u, au_e_u, au_s_u, au_n_u
+real(8), dimension(:, :, :), allocatable :: au_b_u, au_t_u, au_p_u
+real(8), dimension(:, :, :), allocatable :: av_ws_u, av_es_u, av_wn_u, av_en_u
+real(8), dimension(:, :, :), allocatable :: aw_wb_u, aw_eb_u, aw_wt_u, aw_et_u
+real(8), dimension(:, :, :), allocatable :: av_w_v, av_e_v, av_s_v, av_n_v
+real(8), dimension(:, :, :), allocatable :: av_b_v, av_t_v, av_p_v
+real(8), dimension(:, :, :), allocatable :: au_sw_v, au_nw_v, au_se_v, au_ne_v
+real(8), dimension(:, :, :), allocatable :: aw_sb_v, aw_nb_v, aw_st_v, aw_nt_v
+real(8), dimension(:, :, :), allocatable :: aw_w_w, aw_e_w, aw_s_w, aw_n_w
+real(8), dimension(:, :, :), allocatable :: aw_b_w, aw_t_w, aw_p_w
+real(8), dimension(:, :, :), allocatable :: au_bw_w, au_tw_w, au_be_w, au_te_w
+real(8), dimension(:, :, :), allocatable :: av_bs_w, av_ts_w, av_bn_w, av_tn_w
+
 
 integer :: i, j, k
 
@@ -98,6 +111,15 @@ call init(ni, nj, nk, u, v, w, un, vn, wn, rho, mu, rhon, mun, &
           prs_u, prs_v, prs_w, s, tau, vis_u, vis_v, vis_w, &
           sum_fst_u, sum_fst_v, sum_fst_w, &
           sum_fst_un, sum_fst_vn, sum_fst_wn, src_u, src_v, src_w, &
+          au_w_u, au_e_u, au_s_u, au_n_u, au_b_u, au_t_u, au_p_u, &
+          av_ws_u, av_es_u, av_wn_u, av_en_u, &
+          aw_wb_u, aw_eb_u, aw_wt_u, aw_et_u, &
+          av_w_v, av_e_v, av_s_v, av_n_v, av_b_v, av_t_v, av_p_v, &
+          au_sw_v, au_nw_v, au_se_v, au_ne_v, &
+          aw_sb_v, aw_nb_v, aw_st_v, aw_nt_v, &
+          aw_w_w, aw_e_w, aw_s_w, aw_n_w, aw_b_w, aw_t_w, aw_p_w, &
+          au_bw_w, au_tw_w, au_be_w, au_te_w, &
+          av_bs_w, av_ts_w, av_bn_w, av_tn_w, &
           rhol, mul)
 call mpi_barrier(mpi_comm_world, ierr)
 call flush(6)
@@ -140,6 +162,19 @@ call calc_srcu(ni, nj, nk, dt, &
                sum_fst_u , sum_fst_v , sum_fst_w , &
                sum_fst_un, sum_fst_vn, sum_fst_wn, &
                src_u     , src_v     , src_w)
+call calc_arith_coef_vis(ni, nj, nk, dxinv, dyinv, dzinv, mun, &
+                         au_w_u , au_e_u , au_s_u , au_n_u , &
+                         au_b_u , au_t_u , au_p_u ,          &
+                         av_ws_u, av_es_u, av_wn_u, av_en_u, &
+                         aw_wb_u, aw_eb_u, aw_wt_u, aw_et_u, &
+                         av_w_v , av_e_v , av_s_v , av_n_v , &
+                         av_b_v , av_t_v , av_p_v ,          &
+                         au_sw_v, au_nw_v, au_se_v, au_ne_v, &
+                         aw_sb_v, aw_nb_v, aw_st_v, aw_nt_v, &
+                         aw_w_w , aw_e_w , aw_s_w , aw_n_w , &
+                         aw_b_w , aw_t_w , aw_p_w ,          &
+                         au_bw_w, au_tw_w, au_be_w, au_te_w, &
+                         av_bs_w, av_ts_w, av_bn_w, av_tn_w)
 
 call cpy(ni, nj, nk, un, u)
 call bnd_velocity(ni, nj, nk, u, v, w, dy, uwall, ls)
@@ -152,8 +187,11 @@ enddo
 !>debug
 write(*, *)
 write(*,'("u= ",1E20.10)') u(16, 8, 1)
-write(*,'("vis_u= ",1E20.10)') vis_u(16, 8, 1)
 write(*,'("src_u= ",1E20.10)') src_u(16, 8, 1)
+write(*,'("au_w_u= ",1E20.10)') au_w_u(16, 8, 1)
+write(*,'("au_e_u= ",1E20.10)') au_e_u(16, 8, 1)
+write(*,'("au_s_u= ",1E20.10)') au_s_u(16, 8, 1)
+write(*,'("au_n_u= ",1E20.10)') au_n_u(16, 8, 1)
 write(*,'("un= ",1E20.10)') un(16, 8, 1)
 
 !>mpi finished=================================================================
