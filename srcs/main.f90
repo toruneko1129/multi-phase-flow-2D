@@ -120,7 +120,7 @@ call flush(6)
 
 do nstep = 1, nmax
 
-call solve_couette_flow(ni, nj, nk, u, un, rho, mu, dx, dy, dt)
+!call solve_couette_flow(ni, nj, nk, u, un, rho, mu, dx, dy, dt)
 
 !>solve viscous term===========================================================
 
@@ -151,8 +151,7 @@ enddo
 
 !>debug
 write(*, *)
-write(*,'("sij4  = ",1E20.10)') s(ni, nj, 1, 4)
-write(*,'("tauij4= ",1E20.10)') tau(ni, nj, 1, 4)
+write(*,'("u= ",1E20.10)') u(16, 8, 1)
 write(*,'("vis_u= ",1E20.10)') vis_u(16, 8, 1)
 write(*,'("src_u= ",1E20.10)') src_u(16, 8, 1)
 write(*,'("un= ",1E20.10)') un(16, 8, 1)
