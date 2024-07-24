@@ -14,7 +14,8 @@ FCSRCS	=   calc_arith_coef_vis.f \
 			calc_div_tensor.f \
             calc_sij.f \
 			calc_srcu.f \
-            cpy.f
+            cpy.f \
+			solution_sor4.f
 SRCS	=	$(addprefix $(SRCDIR)/, $(F90SRCS)) \
 			$(addprefix $(SRCDIR)/, $(FCSRCS))
 OBJDIR	=	./objs
