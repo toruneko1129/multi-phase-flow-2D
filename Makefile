@@ -3,7 +3,6 @@ FFLAGS	=	-Kfast,parallel,openmp
 FC		=	mpifrtpx
 SRCDIR	=	./srcs
 F90SRCS =   bnd_velocity.f90 \
-						calc_sij.f90 \
             init_3d.f90 \
             init_4d.f90 \
             init.f90 \
