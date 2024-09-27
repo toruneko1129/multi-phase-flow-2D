@@ -134,21 +134,19 @@ dxinv = 1.0d0 / dx
 dyinv = 1.0d0 / dy
 dzinv = 1.0d0 / dz
 
+
+!start solver==================================================================
+
+do nstep = 1, nmax
+
 !>impose boundary conditions===================================================
 
 call bnd_velocity(ni, nj, nk, u, v, w, dy, uwall, ls)
 call mpi_barrier(mpi_comm_world, ierr)
 call flush(6)
 
-!start solver==================================================================
-
-do nstep = 1, nmax
-
-!call solve_couette_flow(ni, nj, nk, u, un, rho, mu, dx, dy, dt)
-
 !>solve viscous term===========================================================
 
-!implement instead of solve_couette_flow
 call calc_sij(ni, nj, nk, dxinv, dyinv, dzinv, u, v, w, s)
 call calc_arith_tau(ni, nj, nk, s, mu, tau)
 call calc_div_tensor(ni, nj, nk, dxinv, dyinv, dzinv, tau, vis_u, vis_v, vis_w)
